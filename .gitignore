@@ -1,0 +1,66 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.hypothesis/
+
+# Build files
+build/
+dist/
+*.egg-info/
+*.egg
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Kivy
+.buildozer/
+bin/
+.idea/
+*.kv.bak
+
+# APK files
+*.apk
+*.aab
