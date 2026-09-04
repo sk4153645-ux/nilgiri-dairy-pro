@@ -10,7 +10,6 @@ from pathlib import Path
 import pytest
 import sys
 
-# Ensure project root is in sys.path
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
@@ -22,38 +21,36 @@ from src.config import TestingConfig
 
 @pytest.fixture(autouse=True)
 def setup_test_db():
-    """
-    Sets up an isolated database for tests and cleans up afterwards.
-    Ensures singleton connection points directly to the test schema.
-    """
+    """Sets up fresh tables without conflicting sample data for each test."""
     db_path = TestingConfig.DATABASE_PATH
 
-    # Reset singleton and point to test db
+    # Clean file if leftover
+    if os.path.exists(db_path):
+        try:
+            os.remove(db_path)
+        except Exception:
+            pass
+
     db_conn_module._db_instance = None
     db = get_db(db_path)
     db_conn_module._db_instance = db
 
-    # Run schema creation on test database
-    try:
-        DatabaseMigration.initialize(db_path)
-    except Exception:
-        pass
-
-    try:
-        DatabaseMigration.add_sample_data(db_path)
-    except Exception:
-        pass
+    # Initialize tables only (do not add sample data to prevent duplicate keys)
+    DatabaseMigration.initialize(db_path)
 
     yield db
 
-    # Teardown connection
     db.close_all()
     db_conn_module._db_instance = None
+    if os.path.exists(db_path):
+        try:
+            os.remove(db_path)
+        except Exception:
+            pass
 
 
 @pytest.fixture
 def sample_farmer_data():
-    """Sample farmer fixture for test isolation."""
     return {
         "code": "01",
         "name": "Test Farmer",
@@ -64,7 +61,6 @@ def sample_farmer_data():
 
 @pytest.fixture
 def sample_customer_data():
-    """Sample customer fixture for test isolation."""
     return {
         "code": "C01",
         "name": "Test Customer",
@@ -75,7 +71,6 @@ def sample_customer_data():
 
 @pytest.fixture
 def sample_milk_entry():
-    """Sample milk entry fixture for test isolation."""
     return {
         "date": "2024-01-01",
         "shift": "Morning",
