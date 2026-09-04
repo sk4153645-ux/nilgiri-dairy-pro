@@ -25,10 +25,17 @@ jobs:
         pip install pyinstaller kivy_deps.angle kivy_deps.sdl2 kivy_deps.glew
 
     - name: Build Executable with PyInstaller
-      env:
-        KIVY_GL_BACKEND: angle_sdl2
       run: |
-        pyinstaller --noconfirm --onedir --windowed --name "NilgiriDairyPro" --collect-all kivy --add-data "src;src" src/main.py
+        python -m PyInstaller --noconfirm --onedir --windowed `
+          --name "NilgiriDairyPro" `
+          --add-data "src;src" `
+          --hidden-import "kivy" `
+          --hidden-import "kivy.core.window" `
+          --hidden-import "kivy.core.image" `
+          --hidden-import "kivy.core.text" `
+          --hidden-import "kivy.app" `
+          --hidden-import "kivy.uix" `
+          src/main.py
 
     - name: Compress Build Artifact
       run: |
@@ -39,4 +46,3 @@ jobs:
       with:
         name: NilgiriDairyPro-Windows
         path: NilgiriDairyPro_Windows.zip
-        
