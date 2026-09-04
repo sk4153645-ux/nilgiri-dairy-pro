@@ -107,41 +107,29 @@ def validate_date(date_val: Any, date_format: str = "%Y-%m-%d") -> ValidatedTupl
 
 
 def validate_milk_entry(*args, **kwargs) -> Any:
-    if len(args) == 4:
-        litres, fat, snf, rate = args
-        return {
-            "litres": validate_quantity(litres),
-            "fat": validate_fat(fat),
-            "snf": validate_snf(snf),
-            "rate": validate_rate(rate),
-        }
+    data = {}
     if args and isinstance(args[0], dict):
-        data = args[0]
-        if "litres" in data:
-            data["litres"] = validate_quantity(data["litres"])
-        elif "quantity" in data:
-            data["quantity"] = validate_quantity(data["quantity"])
-        if "fat" in data:
-            data["fat"] = validate_fat(data["fat"])
-        if "snf" in data:
-            data["snf"] = validate_snf(data["snf"])
-        if "rate" in data:
-            data["rate"] = validate_rate(data["rate"])
-        return data
-    return True
+        data = dict(args[0])
+    elif kwargs:
+        data = dict(kwargs)
+    elif len(args) == 4:
+        litres, fat, snf, rate = args
+        data = {"litres": litres, "fat": fat, "snf": snf, "rate": rate}
+    elif len(args) == 1:
+        data = {"litres": args[0]}
 
+    if "litres" in data:
+        data["litres"] = validate_quantity(data["litres"])
+    elif "quantity" in data:
+        data["quantity"] = validate_quantity(data["quantity"])
 
+    if "fat" in data and data["fat"] is not None:
+        data["fat"] = validate_fat(data["fat"])
 
+    if "snf" in data and data["snf"] is not None:
+        data["snf"] = validate_snf(data["snf"])
 
+    if "rate" in data and data["rate"] is not None:
+        data["rate"] = validate_rate(data["rate"])
 
-
-
-
-
-
-
-
-
-
-
-
+    return data
