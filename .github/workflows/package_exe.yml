@@ -25,10 +25,16 @@ jobs:
         pip install pyinstaller kivy_deps.angle kivy_deps.sdl2 kivy_deps.glew
 
     - name: Build Executable with PyInstaller
+      env:
+        KIVY_GL_BACKEND: angle_sdl2
+        KIVY_NO_CONSOLE: "1"
+        KIVY_NO_ARGS: "1"
       run: |
         python -m PyInstaller --noconfirm --onedir --windowed `
           --name "NilgiriDairyPro" `
           --add-data "src;src" `
+          --collect-binaries kivy_deps.sdl2 `
+          --collect-binaries kivy_deps.angle `
           --hidden-import "kivy" `
           --hidden-import "kivy.core.window" `
           --hidden-import "kivy.core.image" `
