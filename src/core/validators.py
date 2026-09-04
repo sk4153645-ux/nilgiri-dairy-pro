@@ -21,7 +21,23 @@ def validate_email(email: str) -> str:
     if not re.fullmatch(email_regex, cleaned):
         raise ValidationError("email", "Invalid email address format.")
     return cleaned
+def validate_milk_entry(data: dict) -> dict:
+    """Validates complete milk collection entry payload."""
+    if not isinstance(data, dict):
+        raise ValidationError("entry", "Entry payload must be a dictionary.")
 
+    if "quantity" in data:
+        data["quantity"] = validate_quantity(data["quantity"])
+    if "fat" in data:
+        data["fat"] = validate_fat(data["fat"])
+    if "snf" in data:
+        data["snf"] = validate_snf(data["snf"])
+    if "rate" in data:
+        data["rate"] = validate_rate(data["rate"])
+    if "date" in data and isinstance(data["date"], str):
+        data["date"] = validate_date(data["date"])
+
+    return data
 
 def validate_code(code: str) -> str:
     """Validates alphanumeric entity codes (Farmer/Customer/Staff ID)."""
