@@ -15,12 +15,14 @@ class BaseConfig:
     DEBUG: bool = False
     TESTING: bool = False
     SECRET_KEY: str = os.getenv("SECRET_KEY", "default-dev-secret-key-change-in-prod")
-    
-    # Path format needed by SQLite database connection
+
+    # Database parameters expected by DatabaseConnection
     DATABASE_PATH: str = os.getenv("DATABASE_PATH", str(BASE_DIR / "dairy.db"))
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", f"sqlite+aiosqlite:///{BASE_DIR}/dairy.db"
     )
+    DB_POOL_SIZE: int = int(os.getenv("DB_POOL_SIZE", "5"))
+    DB_TIMEOUT: float = float(os.getenv("DB_TIMEOUT", "30.0"))
     BACKUP_DIR: str = os.getenv("BACKUP_DIR", str(BASE_DIR / "backups"))
 
 
@@ -33,6 +35,8 @@ class TestingConfig(BaseConfig):
     TESTING: bool = True
     DATABASE_PATH: str = ":memory:"
     DATABASE_URL: str = "sqlite+aiosqlite:///:memory:"
+    DB_POOL_SIZE: int = 1
+    DB_TIMEOUT: float = 10.0
 
 
 class ProductionConfig(BaseConfig):
