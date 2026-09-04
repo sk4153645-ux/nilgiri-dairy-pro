@@ -4,7 +4,6 @@ Kivy-Garden==0.1.5
 
 # Database
 SQLAlchemy==2.0.23
-SQLite3-stubs==0.4.1
 
 # Authentication
 bcrypt==4.1.1
