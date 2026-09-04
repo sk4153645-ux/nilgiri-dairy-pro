@@ -23,6 +23,7 @@ class MilkEntry(BaseModel):
         snf: SNF/CLR value
         rate: Rate per litre
         total_amount: Total amount (calculated)
+        farmer_code: Code of the associated farmer
     """
 
     def __init__(
@@ -34,6 +35,8 @@ class MilkEntry(BaseModel):
         fat: float = 0.0,
         snf: float = 0.0,
         rate: float = 0.0,
+        farmer_code: str = "",
+        **kwargs,
     ):
         """
         Initialize MilkEntry model.
@@ -46,6 +49,7 @@ class MilkEntry(BaseModel):
             fat: Fat percentage (optional)
             snf: SNF/CLR value (optional)
             rate: Rate per litre (optional)
+            farmer_code: Code of the farmer (optional)
         """
         self.date = date
         self.shift = shift
@@ -54,6 +58,7 @@ class MilkEntry(BaseModel):
         self.fat = fat
         self.snf = snf
         self.rate = rate
+        self.farmer_code = farmer_code
 
     def validate(self) -> Tuple[bool, str]:
         """
