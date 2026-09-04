@@ -282,3 +282,5 @@ def get_db(db_path: str = None) -> DatabaseConnection:
                 _db_instance = DatabaseConnection(db_path)
 
     return _db_instance
+# Alias for services
+db_connection = get_db()
