@@ -42,7 +42,4 @@ jobs:
 
     - name: Run test suite with virtual display
       run: |
-        xvfb-run -a pytest -v 
-- name: Run test suite with virtual display
-      run: |
-        xvfb-run -a pytest -v --tb=short --showlocals
+        xvfb-run -a pytest -v--tb=short --showlocals
