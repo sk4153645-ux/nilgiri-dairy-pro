@@ -26,7 +26,7 @@ jobs:
 
     - name: Build Executable with PyInstaller
       run: |
-        pyinstaller --noconfirm --onedir --windowed --name "NilgiriDairyPro" --add-data "src;src" main.py
+        pyinstaller --noconfirm --onedir --windowed --name "NilgiriDairyPro" --add-data "src;src" src/main.py
 
     - name: Compress Build Artifact
       run: |
