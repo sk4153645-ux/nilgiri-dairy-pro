@@ -4,23 +4,22 @@
 class DairyException(Exception):
     """Base exception for all application-specific errors."""
 
-    def __init__(self, message: str, code: str = "INTERNAL_ERROR"):
+    def __init__(self, message: str = "An error occurred.", code: str = "INTERNAL_ERROR", *args, **kwargs):
         super().__init__(message)
-        self.message = message
+        self.message = str(message)
         self.code = code
 
 
 class DatabaseError(DairyException):
-    """Raised on database connection or query execution failure."""
-
-    def __init__(self, message: str = "Database operation failed."):
-        super().__init__(message=message, code="DB_ERROR")
+    def __init__(self, *args, **kwargs):
+        msg = args[0] if args else kwargs.get("message", "Database operation failed.")
+        super().__init__(message=msg, code="DB_ERROR")
 
 
 class RecordNotFoundError(DairyException):
-    """Raised when an entity is missing in the database."""
-
-    def __init__(self, entity: str = "Record", identifier: str | int = ""):
+    def __init__(self, *args, **kwargs):
+        entity = args[0] if args else kwargs.get("entity", "Record")
+        identifier = args[1] if len(args) > 1 else kwargs.get("identifier", "")
         msg = f"{entity} with identifier '{identifier}' was not found." if identifier else f"{entity} not found."
         super().__init__(message=msg, code="NOT_FOUND")
 
@@ -29,38 +28,38 @@ NotFoundError = RecordNotFoundError
 
 
 class DuplicateError(DairyException):
-    """Raised when a unique constraint or record already exists."""
-
-    def __init__(self, message: str = "Record already exists."):
-        super().__init__(message=message, code="DUPLICATE_RECORD")
+    def __init__(self, *args, **kwargs):
+        # Accepts any positional args: entity, field, value, etc.
+        if len(args) >= 3:
+            msg = f"{args[0]} with {args[1]} '{args[2]}' already exists."
+        elif args:
+            msg = str(args[0])
+        else:
+            msg = kwargs.get("message", "Record already exists.")
+        super().__init__(message=msg, code="DUPLICATE_RECORD")
 
 
 class ValidationError(DairyException):
-    """Raised when input validation fails."""
-
-    def __init__(self, field: str = "Field", detail: str = "Invalid value"):
-        super().__init__(
-            message=f"Validation failed for '{field}': {detail}",
-            code="VALIDATION_ERROR",
-        )
+    def __init__(self, *args, **kwargs):
+        msg = args[0] if args else kwargs.get("message", "Invalid value")
+        field = kwargs.get("field", args[1] if len(args) > 1 else "Field")
+        self.field = field
+        super().__init__(message=f"[{field}] {msg}", code="VALIDATION_ERROR")
 
 
 class BusinessLogicError(DairyException):
-    """Raised when an operation violates core dairy business logic."""
-
-    def __init__(self, message: str = "Business logic rule violated."):
-        super().__init__(message=message, code="BUSINESS_RULE_VIOLATION")
+    def __init__(self, *args, **kwargs):
+        msg = args[0] if args else kwargs.get("message", "Business logic rule violated.")
+        super().__init__(message=msg, code="BUSINESS_RULE_VIOLATION")
 
 
 class AuthenticationError(DairyException):
-    """Raised on invalid credentials or token failure."""
-
-    def __init__(self, message: str = "Invalid credentials."):
-        super().__init__(message=message, code="AUTH_ERROR")
+    def __init__(self, *args, **kwargs):
+        msg = args[0] if args else kwargs.get("message", "Invalid credentials.")
+        super().__init__(message=msg, code="AUTH_ERROR")
 
 
 class InsufficientBalanceError(DairyException):
-    """Raised during payment attempts when customer/farmer credit is insufficient."""
-
-    def __init__(self, message: str = "Insufficient balance for this transaction."):
-        super().__init__(message=message, code="INSUFFICIENT_BALANCE")
+    def __init__(self, *args, **kwargs):
+        msg = args[0] if args else kwargs.get("message", "Insufficient balance for this transaction.")
+        super().__init__(message=msg, code="INSUFFICIENT_BALANCE")
