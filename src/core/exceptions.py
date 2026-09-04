@@ -25,7 +25,6 @@ class RecordNotFoundError(DairyException):
         super().__init__(message=msg, code="NOT_FOUND")
 
 
-# Alias expected by database repository
 NotFoundError = RecordNotFoundError
 
 
@@ -44,6 +43,13 @@ class ValidationError(DairyException):
             message=f"Validation failed for '{field}': {detail}",
             code="VALIDATION_ERROR",
         )
+
+
+class BusinessLogicError(DairyException):
+    """Raised when an operation violates core dairy business logic."""
+
+    def __init__(self, message: str = "Business logic rule violated."):
+        super().__init__(message=message, code="BUSINESS_RULE_VIOLATION")
 
 
 class AuthenticationError(DairyException):
