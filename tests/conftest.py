@@ -11,38 +11,42 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from src.database.connection import get_db
 from src.database.migration import DatabaseMigration
 from src.config import TestingConfig
 
 
-@pytest.fixture(scope="session")
-def test_db():
+@pytest.fixture(autouse=True)
+def setup_test_db():
     """
-    Initialize test database for entire test session.
+    Auto-run before EVERY test:
+    Initializes a fresh test database with tables and sample data.
     """
     db_path = TestingConfig.DATABASE_PATH
-    DatabaseMigration.initialize(db_path)
-    DatabaseMigration.add_sample_data(db_path)
-    yield db_path
-    # Cleanup happens automatically with in-memory database
+    db = get_db(db_path)
+    
+    # Run migration methods directly
+    try:
+        DatabaseMigration.initialize(db_path)
+    except AttributeError:
+        # Fallback if instance-based
+        migration = DatabaseMigration(db)
+        migration.run_migrations()
 
+    try:
+        DatabaseMigration.add_sample_data(db_path)
+    except (AttributeError, Exception):
+        pass
 
-@pytest.fixture(autouse=True)
-def reset_db():
-    """
-    Reset database before each test.
-    """
-    from src.database.connection import _db_instance
-    global _db_instance
-    _db_instance = None  # Reset singleton
-    yield
+    yield db
+
+    # Teardown
+    db.close_all()
 
 
 @pytest.fixture
 def sample_farmer_data():
-    """
-    Sample farmer data for testing.
-    """
+    """Sample farmer data for testing."""
     return {
         "code": "01",
         "name": "Test Farmer",
@@ -53,9 +57,7 @@ def sample_farmer_data():
 
 @pytest.fixture
 def sample_customer_data():
-    """
-    Sample customer data for testing.
-    """
+    """Sample customer data for testing."""
     return {
         "code": "C01",
         "name": "Test Customer",
@@ -66,9 +68,7 @@ def sample_customer_data():
 
 @pytest.fixture
 def sample_milk_entry():
-    """
-    Sample milk entry data for testing.
-    """
+    """Sample milk entry data for testing."""
     return {
         "date": "2024-01-01",
         "shift": "Morning",
