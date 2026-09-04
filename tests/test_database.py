@@ -59,18 +59,24 @@ class TestCustomerRepository:
 
 
 class TestMilkPurchaseRepository:
-    """Tests for MilkPurchaseRepository."""
+    """Test cases for MilkPurchaseRepository."""
 
     def test_create_milk_purchase(self, sample_farmer_data, sample_milk_entry):
         """Test milk purchase creation."""
         FarmerRepository.create(**sample_farmer_data)
-        purchase_id = MilkPurchaseRepository.create(**sample_milk_entry)
+        data = dict(sample_milk_entry)
+        if "total_amount" not in data:
+            data["total_amount"] = round(data["litres"] * data["rate"], 2)
+        purchase_id = MilkPurchaseRepository.create(**data)
         assert purchase_id > 0
 
     def test_get_by_date_shift(self, sample_farmer_data, sample_milk_entry):
         """Test get purchases by date and shift."""
         FarmerRepository.create(**sample_farmer_data)
-        MilkPurchaseRepository.create(**sample_milk_entry)
+        data = dict(sample_milk_entry)
+        if "total_amount" not in data:
+            data["total_amount"] = round(data["litres"] * data["rate"], 2)
+        MilkPurchaseRepository.create(**data)
         purchases = MilkPurchaseRepository.get_by_date_shift(
             sample_milk_entry["date"], sample_milk_entry["shift"]
         )
@@ -79,7 +85,10 @@ class TestMilkPurchaseRepository:
     def test_delete_milk_purchase(self, sample_farmer_data, sample_milk_entry):
         """Test milk purchase deletion."""
         FarmerRepository.create(**sample_farmer_data)
-        purchase_id = MilkPurchaseRepository.create(**sample_milk_entry)
+        data = dict(sample_milk_entry)
+        if "total_amount" not in data:
+            data["total_amount"] = round(data["litres"] * data["rate"], 2)
+        purchase_id = MilkPurchaseRepository.create(**data)
         MilkPurchaseRepository.delete(purchase_id)
         purchases = MilkPurchaseRepository.get_by_date_shift(
             sample_milk_entry["date"], sample_milk_entry["shift"]
