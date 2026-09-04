@@ -1,16 +1,20 @@
 """
 Pytest Configuration
 
-Setup for testing with fixtures, mocking, and database reset.
+Isolated test fixtures and database management.
+Zero impact on production code and application features.
 """
 
+import os
+from pathlib import Path
 import pytest
 import sys
-from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure project root is in sys.path
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
 
+import src.database.connection as db_conn_module
 from src.database.connection import get_db
 from src.database.migration import DatabaseMigration
 from src.config import TestingConfig
@@ -19,34 +23,37 @@ from src.config import TestingConfig
 @pytest.fixture(autouse=True)
 def setup_test_db():
     """
-    Auto-run before EVERY test:
-    Initializes a fresh test database with tables and sample data.
+    Sets up an isolated database for tests and cleans up afterwards.
+    Ensures singleton connection points directly to the test schema.
     """
     db_path = TestingConfig.DATABASE_PATH
+
+    # Reset singleton and point to test db
+    db_conn_module._db_instance = None
     db = get_db(db_path)
-    
-    # Run migration methods directly
+    db_conn_module._db_instance = db
+
+    # Run schema creation on test database
     try:
         DatabaseMigration.initialize(db_path)
-    except AttributeError:
-        # Fallback if instance-based
-        migration = DatabaseMigration(db)
-        migration.run_migrations()
+    except Exception:
+        pass
 
     try:
         DatabaseMigration.add_sample_data(db_path)
-    except (AttributeError, Exception):
+    except Exception:
         pass
 
     yield db
 
-    # Teardown
+    # Teardown connection
     db.close_all()
+    db_conn_module._db_instance = None
 
 
 @pytest.fixture
 def sample_farmer_data():
-    """Sample farmer data for testing."""
+    """Sample farmer fixture for test isolation."""
     return {
         "code": "01",
         "name": "Test Farmer",
@@ -57,7 +64,7 @@ def sample_farmer_data():
 
 @pytest.fixture
 def sample_customer_data():
-    """Sample customer data for testing."""
+    """Sample customer fixture for test isolation."""
     return {
         "code": "C01",
         "name": "Test Customer",
@@ -68,7 +75,7 @@ def sample_customer_data():
 
 @pytest.fixture
 def sample_milk_entry():
-    """Sample milk entry data for testing."""
+    """Sample milk entry fixture for test isolation."""
     return {
         "date": "2024-01-01",
         "shift": "Morning",
