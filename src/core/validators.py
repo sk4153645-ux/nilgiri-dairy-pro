@@ -12,6 +12,17 @@ def sanitize_string(value: str) -> str:
     return str(value).strip()
 
 
+def validate_email(email: str) -> str:
+    """Validates standard email addresses."""
+    if not email:
+        raise ValidationError("email", "Email address is required.")
+    cleaned = str(email).strip().lower()
+    email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    if not re.fullmatch(email_regex, cleaned):
+        raise ValidationError("email", "Invalid email address format.")
+    return cleaned
+
+
 def validate_code(code: str) -> str:
     """Validates alphanumeric entity codes (Farmer/Customer/Staff ID)."""
     if not code:
@@ -37,8 +48,19 @@ def validate_phone(phone: str) -> str:
     return cleaned
 
 
-# Alias for backwards compatibility with tests and models
 validate_phone_number = validate_phone
+
+
+def validate_positive_number(val: float | int | str, field_name: str = "value") -> float:
+    """Validates that a numeric value is strictly greater than zero."""
+    try:
+        num = float(val)
+    except (ValueError, TypeError):
+        raise ValidationError(field_name, f"{field_name} must be numeric.")
+
+    if num <= 0:
+        raise ValidationError(field_name, f"{field_name} must be greater than zero.")
+    return round(num, 2)
 
 
 def validate_fat(fat: float | int | str) -> float:
@@ -67,28 +89,12 @@ def validate_snf(snf: float | int | str) -> float:
 
 def validate_quantity(qty: float | int | str) -> float:
     """Validates milk quantity in liters (greater than 0)."""
-    try:
-        val = float(qty)
-    except (ValueError, TypeError):
-        raise ValidationError("quantity", "Quantity must be numeric.")
-
-    if val <= 0:
-        raise ValidationError("quantity", "Quantity must be greater than 0.")
-    if val > 10000:
-        raise ValidationError("quantity", "Quantity exceeds maximum threshold (10,000L).")
-    return round(val, 2)
+    return validate_positive_number(qty, "quantity")
 
 
 def validate_rate(rate: float | int | str) -> float:
     """Validates milk purchase/sale price per liter."""
-    try:
-        val = float(rate)
-    except (ValueError, TypeError):
-        raise ValidationError("rate", "Rate must be numeric.")
-
-    if val <= 0:
-        raise ValidationError("rate", "Rate per liter must be positive.")
-    return round(val, 2)
+    return validate_positive_number(rate, "rate")
 
 
 def validate_date(date_str: str, date_format: str = "%Y-%m-%d") -> datetime:
