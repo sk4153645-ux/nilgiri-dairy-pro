@@ -4,7 +4,7 @@ Dairy Service
 Core business logic for dairy operations.
 """
 
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 from datetime import datetime, date
 from src.database.connection import get_db
 from src.database.repository import (
