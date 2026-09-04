@@ -5,6 +5,23 @@ import re
 from src.core.exceptions import ValidationError
 
 
+def sanitize_string(value: str) -> str:
+    """Strips whitespace and escapes potential malicious chars."""
+    if not value:
+        return ""
+    return str(value).strip()
+
+
+def validate_code(code: str) -> str:
+    """Validates alphanumeric entity codes (Farmer/Customer/Staff ID)."""
+    if not code:
+        raise ValidationError("code", "Code is required.")
+    cleaned = str(code).strip().upper()
+    if not re.fullmatch(r"[A-Z0-9_-]{2,20}", cleaned):
+        raise ValidationError("code", "Code must be 2-20 alphanumeric characters.")
+    return cleaned
+
+
 def validate_phone(phone: str) -> str:
     """Validates 10-digit Indian mobile numbers."""
     if not phone:
@@ -18,6 +35,10 @@ def validate_phone(phone: str) -> str:
     if not re.fullmatch(r"[6-9]\d{9}", cleaned):
         raise ValidationError("phone", "Invalid mobile number. Must be 10 digits starting with 6-9.")
     return cleaned
+
+
+# Alias for backwards compatibility with tests and models
+validate_phone_number = validate_phone
 
 
 def validate_fat(fat: float | int | str) -> float:
