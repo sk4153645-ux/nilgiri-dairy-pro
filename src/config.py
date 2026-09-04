@@ -33,9 +33,9 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     DEBUG: bool = True
     TESTING: bool = True
-    DATABASE_PATH: str = ":memory:"
-    DATABASE_URL: str = "sqlite+aiosqlite:///:memory:"
-    DB_POOL_SIZE: int = 1
+    DATABASE_PATH: str = str(BASE_DIR / "test_dairy.db")
+    DATABASE_URL: str = f"sqlite+aiosqlite:///{BASE_DIR}/test_dairy.db"
+    DB_POOL_SIZE: int = 5
     DB_TIMEOUT: float = 10.0
 
 
