@@ -10,8 +10,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class BaseConfig:
-    """Base configuration shared across environments."""
-
     APP_NAME: str = "Nilgiri Dairy Pro"
     VERSION: str = "1.0.0"
     DEBUG: bool = False
@@ -24,31 +22,26 @@ class BaseConfig:
 
 
 class DevelopmentConfig(BaseConfig):
-    """Development environment configuration."""
-
     DEBUG: bool = True
 
 
 class TestingConfig(BaseConfig):
-    """Test environment configuration."""
-
     DEBUG: bool = True
     TESTING: bool = True
     DATABASE_URL: str = "sqlite+aiosqlite:///:memory:"
 
 
 class ProductionConfig(BaseConfig):
-    """Production deployment configuration."""
-
     DEBUG: bool = False
 
 
-# Map environment names to classes
+# Aliases expected by tests & database connection
+Config = DevelopmentConfig
+
 config_by_name = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,
     "production": ProductionConfig,
 }
 
-# Active default config
 config = config_by_name.get(os.getenv("ENV", "development"), DevelopmentConfig)
