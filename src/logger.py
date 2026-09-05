@@ -1,39 +1,42 @@
-"""Application-wide logger configuration using loguru."""
+"""Application logging configuration using Loguru."""
 
 import os
 import sys
+from pathlib import Path
 from loguru import logger
 
-# Create logs directory if it doesn't exist
-LOGS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-os.makedirs(LOGS_DIR, exist_ok=True)
 
-
-def setup_logger(log_file: str = "app.log", rotation: str = "10 MB", retention: str = "30 days"):
-    """Configures handlers for logging."""
+def setup_logger():
+    """Configure loguru sinks safely for packaged windowed builds."""
     logger.remove()
 
-    # Console logging
-    logger.add(
-        sys.stdout,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-        level="INFO",
-    )
+    # Check if stderr exists and is not None
+    if getattr(sys, "stderr", None) is not None:
+        try:
+            logger.add(
+                sys.stderr,
+                format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+                level="INFO",
+            )
+        except Exception:
+            pass
 
     # File logging
-    log_path = os.path.join(LOGS_DIR, log_file)
-    logger.add(
-        log_path,
-        rotation=rotation,
-        retention=retention,
-        compression="zip",
-        level="DEBUG",
-        encoding="utf-8",
-    )
+    log_dir = Path(os.environ.get("APPDATA", Path.home())) / "NilgiriDairyPro" / "logs"
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / "app.log"
+        logger.add(
+            str(log_file),
+            rotation="10 MB",
+            retention="7 days",
+            level="DEBUG",
+            encoding="utf-8",
+        )
+    except Exception:
+        pass
+
     return logger
 
 
-# Default logger instance
 setup_logger()
-
-__all__ = ["logger", "setup_logger"]
